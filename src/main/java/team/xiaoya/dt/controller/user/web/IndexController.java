@@ -23,7 +23,7 @@ public class IndexController {
 	public ModelAndView index() {
 		
 		
-		return new ModelAndV
+		return null;
 	}
 
 }
