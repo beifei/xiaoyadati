@@ -1,0 +1,81 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<beans xmlns="http://www.springframework.org/schema/beans" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+	xmlns:mvc="http://www.springframework.org/schema/mvc"
+	xsi:schemaLocation="http://www.springframework.org/schema/mvc http://www.springframework.org/schema/mvc/spring-mvc-3.2.xsd
+		http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans-3.2.xsd
+		http://www.springframework.org/schema/context http://www.springframework.org/schema/context/spring-context-3.2.xsd">
+
+	<!-- 自动扫描且只扫描@Controller -->
+	<context:component-scan base-package="team.xiaoya.dt.controller" use-default-filters="false">
+		<context:include-filter type="annotation" expression="org.springframework.stereotype.Controller" />
+	</context:component-scan>
+		
+	<!-- 配置SpringMVC转换�?-->
+	<bean id="conversionService" class="org.springframework.context.support.ConversionServiceFactoryBean">
+		
+	</bean>
+
+	<mvc:annotation-driven conversion-service="conversionService">
+		<mvc:message-converters>
+			<bean class="org.springframework.http.converter.ByteArrayHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.FormHttpMessageConverter" />
+			<bean class="org.springframework.http.converter.xml.SourceHttpMessageConverter" />
+			<!--  
+			<bean class="org.springframework.http.converter.json.MappingJacksonHttpMessageConverter" />
+			-->
+			<bean class="org.springframework.http.converter.StringHttpMessageConverter">
+				<constructor-arg value="UTF-8" />
+			</bean>
+		</mvc:message-converters>
+	</mvc:annotation-driven>
+
+	<bean id="jspViewResolver"
+		class="org.springframework.web.servlet.view.InternalResourceViewResolver">
+		<property name="viewClass" value="org.springframework.web.servlet.view.JstlView"/>
+		<property name="order" value="2" />
+		<property name="prefix" value="/WEB-INF/jsp/" />
+		<property name="suffix" value=".jsp" />
+	</bean>
+
+	<!-- 以下配置将拦截特有的URL请求，这里的path配置了两�?后才能拦截到�?admin/task/list.do的请�?-->
+	<mvc:interceptors>
+		<mvc:interceptor>
+			<mvc:mapping path="/admin/**"/>
+			<bean class="team.xiaoya.dt.intercepter.AdministratorLoginRequiredInterceptor" />
+		</mvc:interceptor>
+	<!-- 除管理后台外，其它都过这个过滤器 mvc:exclude-mapping是排队的功能-->
+		<mvc:interceptor>
+			<mvc:mapping path="/**"/>
+			<mvc:exclude-mapping path="/admin/**"/>
+			<bean class="team.xiaoya.dt.intercepter.LoginRequiredInterceptor" />
+		</mvc:interceptor>
+	
+	</mvc:interceptors>
+
+
+	
+	
+	
+	
+	<!-- 文件上传配置,不配置不能上传开�?-->
+	<!--  这里申明的id必须为multipartResolver  -->  
+	<bean id="multipartResolver"  
+	    class="org.springframework.web.multipart.commons.CommonsMultipartResolver">  
+	  
+	    <!-- one of the properties available; the maximum file size in bytes -->  
+	    <property name="maxUploadSize" value="100000000"/>  
+	</bean>  
+	<!-- 文件上传配置结束-->
+	
+	<!-- 统一异常善后工作 -->
+	<bean id="exceptionResolver" class="com.zxxk.xyjpk.controller.ExceptionHandler"/>
+	
+	
+	
+	<!-- 对静态资源文件的访问 这里要配置，不然直接放eclipse的tomcat是不能访问的 -->  
+	<mvc:resources mapping="/image/**" location="/image/" cache-period="31556926"/>  
+	<mvc:resources mapping="/js/**" location="/js/" cache-period="31556926"/>  
+	<mvc:resources mapping="/css/**" location="/css/" cache-period="31556926"/>
+	<mvc:resources mapping="/fabu/**" location="/fabu/" cache-period="31556926"/>
+    <mvc:default-servlet-handler/>
+</beans>
